@@ -136,11 +136,14 @@ exports.deleteTodo = (req, res) => {
 
 exports.deleteSelectTodo = (req, res) => {
   const str = req.params.id
-  const sqlStr = `select * from todoList_todo where id in (${str})`
+  const sqlStr = `delete from todoList_todo where id in (${str})`
   db.query(sqlStr, req.params.id, (err, results) => {
     if (err) {
       return res.cc(err)
     }
-    res.send(results)
+    if (results.affectedRows === 0) {
+      return res.cc('所选内容不存在')
+    }
+    res.cc('删除成功', 0)
   })
 }
