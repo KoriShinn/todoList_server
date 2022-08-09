@@ -18,11 +18,40 @@ const myRouter = require('./router/todo')
 
 // res.cc
 app.use(function (req, res, next) {
-  res.cc = function (err, status = 1) {
-    res.send({
-      status,
-      message: err instanceof Error ? err.message : err
-    })
+  res.cc = function (err, status = 1, ...a) {
+    const obj = { ...a[0], ...a[1] }
+    const hasToken = 'token' in obj
+    if (a.length > 0 && hasToken) {
+      return res.send(
+        {
+          data: { ...a[0], ...a[1] },
+          // ...a返回的是一个各个数据，传的results[0]本身就是一个大数组，...a[0]就是数组里的每项数据，展开后取key会失去最外层
+          meta: {
+            msg: err instanceof Error ? err.message : err,
+            status,
+          }
+        }
+      )
+    } else if (a.length > 0 && !hasToken) {
+      return res.send(
+        {
+          data: { ...a[0] },
+          meta: {
+            msg: err instanceof Error ? err.message : err,
+            status,
+          }
+        }
+      )
+    } else {
+      return res.send(
+        {
+          meta: {
+            msg: err instanceof Error ? err.message : err,
+            status,
+          }
+        }
+      )
+    }
   }
   next()
 })
