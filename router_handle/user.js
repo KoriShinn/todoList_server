@@ -51,10 +51,8 @@ exports.login = (req, res) => {
     }
     const user = { ...results[0], password: '' }
     const tokenStr = jwt.sign(user, config.jwtSecretKey, { expiresIn: '10h' })
-    res.send({
-      status: 0,
-      message: '登录成功',
-      token: 'Bearer ' + tokenStr
-    })
+    const { password, ...userDate } = results[0]
+    const token = { token: 'Bearer ' + tokenStr }
+    res.cc('登录成功', 0, userDate, token)
   })
 }
